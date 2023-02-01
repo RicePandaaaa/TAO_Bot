@@ -47,6 +47,12 @@ class General(commands.Cog):
                         "sessions for students and content reviews. I can also provide students with information " \
                         "related to office hours! Please type `!help` for a complete command list!")
 
+    @commands.hybrid_command(aliases=["oh"])
+    async def officehours(self, ctx: Context):
+        """ Basic command redirecting users to the office hours channel (for now) """
+        await ctx.send("This bot is still under developement! Please consult the <#1070134719754289194> channel" \
+                       " to see office hours posted by your PTs!")
+
 
 async def setup(bot):
     await bot.add_cog(General(bot))
