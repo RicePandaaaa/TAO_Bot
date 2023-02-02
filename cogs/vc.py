@@ -59,7 +59,6 @@ class VoiceChannel(commands.Cog):
 
             # Output
             placement = "" if (place == -1) else f"\n\nYour current position in queue is: {place}."
-
             await ctx.send(output + placement)
 
 
@@ -82,6 +81,14 @@ class VoiceChannel(commands.Cog):
                 await channel.delete()
 
         # Remove user from the queue
+        if before is not None and before.channel.id == 1070153319034667058:
+            for index in range(len(self.queue) - 1, -1, -1):
+                if self.queue[index].id == member.id:
+                    self.queue.pop(index)
+
+        # Add user to the queue
+        if after is not None and after.channel.id == 1070153319034667058:
+            self.queue.append(member)
 
         
 
