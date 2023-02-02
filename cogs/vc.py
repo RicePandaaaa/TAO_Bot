@@ -12,7 +12,7 @@ class VoiceChannel(commands.Cog):
         self.queue = []
         
     @commands.hybrid_command(aliases=["ohvc"])
-    @commands.has_role("Panda Overlord")
+    @commands.has_any_role(["Panda Overlord"])
     async def create_office_hours_vc(self, ctx: Context, room_size: int=2):
         """ Creates a voice channel for office hours """
 
@@ -60,6 +60,17 @@ class VoiceChannel(commands.Cog):
             # Output
             placement = "" if (place == -1) else f"\n\nYour current position in queue is: {place}."
             await ctx.send(output + placement)
+
+    @commands.hybrid_command()
+    @commands.has_any_role(["Panda Overlord"])
+    async def grab_next(self, ctx: Context):
+        """ Moves the next person in the queue to the user's current voice channel """
+
+        # Empty queue
+        if len(self.queue) == 0:
+            return await ctx.send("The queue is empty.")
+
+        self.queue[0].move_to(ctx.author.voice.channel)
 
 
     @commands.Cog.listener()
