@@ -12,7 +12,7 @@ class VoiceChannel(commands.Cog):
         self.queue = []
         
     @commands.hybrid_command(aliases=["ohvc"])
-    @commands.has_any_role(["Panda Overlord"])
+    @commands.has_any_role('Panda Overlord')
     async def create_office_hours_vc(self, ctx: Context, room_size: int=2):
         """ Creates a voice channel for office hours """
 
@@ -33,9 +33,10 @@ class VoiceChannel(commands.Cog):
         # Add the voice channel to the list and add the user to the vc
         self.voice_channels.append(voice_channel)
         await ctx.author.move_to(voice_channel)
+        await ctx.send("Room created successfully!")
         self.channel_number += 1
 
-    @commands.hybrid_command(aliases=["cq"])
+    @commands.hybrid_command(aliases=["cq", "queue"])
     async def check_queue(self, ctx: Context):
         """ Outputs the first ten people in queue and the user's current position, if in queue """
         
@@ -58,19 +59,27 @@ class VoiceChannel(commands.Cog):
                     break
 
             # Output
-            placement = "" if (place == -1) else f"\n\nYour current position in queue is: {place}."
+            placement = "You are not in queue." if (place == -1) else f"\nYour current position in queue is: **{place}**."
             await ctx.send(output + placement)
 
     @commands.hybrid_command()
-    @commands.has_any_role(["Panda Overlord"])
+    @commands.has_any_role("Panda Overlord")
     async def grab_next(self, ctx: Context):
         """ Moves the next person in the queue to the user's current voice channel """
 
         # Empty queue
         if len(self.queue) == 0:
             return await ctx.send("The queue is empty.")
+        
+        # Check for valid voice channel
+        vc = ctx.author.voice.channel
+        if vc is not None and not vc.name.startswith("Office Hours"):
+            return await ctx.send("You must be in an office hours voice channel to use this command.")
+        if vc is not None and len(vc.members) == vc.user_limit:
+            return await ctx.send("Your room is full!")
+        
 
-        self.queue[0].move_to(ctx.author.voice.channel)
+        await self.queue[0].move_to(vc)
 
 
     @commands.Cog.listener()
@@ -92,13 +101,13 @@ class VoiceChannel(commands.Cog):
                 await channel.delete()
 
         # Remove user from the queue
-        if before is not None and before.channel.id == 1070153319034667058:
+        if before is not None and before.channel is not None and before.channel.id == 1070153319034667058:
             for index in range(len(self.queue) - 1, -1, -1):
                 if self.queue[index].id == member.id:
                     self.queue.pop(index)
 
         # Add user to the queue
-        if after is not None and after.channel.id == 1070153319034667058:
+        if after is not None and after.channel is not None and after.channel.id == 1070153319034667058:
             self.queue.append(member)
 
         
